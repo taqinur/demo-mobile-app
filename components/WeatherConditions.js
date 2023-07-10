@@ -8,13 +8,13 @@ export const weatherConditions = {
     Clear: {
         color: '#f7b733',
         title: 'So Sunny',
-        subtitle: 'It is hurting my eyes',
+        subtitle: 'GO to the shades',
         icon: 'weather-sunny'
     },
     Thunderstorm: {
         color: '#616161',
         title: 'A Storm is coming',
-        subtitle: 'Because Gods are angry',
+        subtitle: 'Find Shelter ASAP!!!!!!!!',
         icon: 'weather-lightning'
     },
     Clouds: {
@@ -39,13 +39,13 @@ export const weatherConditions = {
     Haze: {
         color: '#66A6FF',
         title: 'Haze',
-        subtitle: 'Another name for Partial Raining',
+        subtitle: 'Will it rain? Lets see.',
         icon: 'weather-hail'
     },
     Mist: {
         color: '#3CD3AD',
         title: 'Mist',
-        subtitle: "Don't roam in forests!",
+        subtitle: "Don't roam in the unknowns!",
         icon: 'weather-fog'
     }
 };
