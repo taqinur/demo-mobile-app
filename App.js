@@ -1,99 +1,76 @@
-import React from 'react';
-import { StyleSheet, Text, View, Animated } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
-
-
-// import { DangerZone } from 'expo';
-// const { Lottie } = DangerZone;
-
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, Text, View, Platform } from 'react-native';
+import * as Location from 'expo-location';
+import Weather from './components/weather';
 import { API_KEY } from './utils/ApiKey';
 
-import Weather from './components/weather';
+  export default function App() {
 
-export default class App extends React.Component {
-  state = {
-    isLoading: true,
-    temperature: 0,
-    weatherCondition: null,
-    error: null
-  };
+    const [weatherData, setWeatherData] = useState(null);
 
-  componentDidMount() {
-    this.fetchWeather();
+    useEffect(() => {
+      getLocation();
+    }, []);
 
-    // Geolocation.getCurrentPosition(
-    //   (position) => {
-    //     this.fetchWeather(position.coords.latitude, position.coords.longitude);
-    //   },
-    //   (error) => {
-    //     this.setState({
-    //       error: 'Error Getting Weather Condtions'
-    //     },
-    //       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    //     );
-    //   }
-    // );
-  }
+    const getLocation = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.log('Location permission denied');
+          return;
+        }
 
+        const location = await Location.getCurrentPositionAsync();
+        const { latitude, longitude } = location.coords;
+        fetchWeather(latitude, longitude);
+      } catch (error) {
+        console.log('Error getting location', error);
+      }
+    };
+    const fetchWeather = async (lat, lon) => {
+      try {
+        const response = await fetch(
+          `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+        );
+        const data = await response.json();
+        setWeatherData(data);
+      } catch (error) {
+        console.log('Error fetching weather data', error);
+      }
+    };
 
-  // componentDidMount() {
-  //   console.log('sfdaskj');
-    
-  //     Geolocation.getCurrentPosition(
-  //       (position) => {
-  //         console.log(position);
-  //       },
-  //       (error) => {
-  //         console.log(error.code, error.message);
-  //       },
-  //       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-  //     );
-    
-  // }
-
-  fetchWeather(lat, lon) {
-    fetch(
-      `http://api.openweathermap.org/data/2.5/weather?lat=23.1104&lon=90.4125&appid=${API_KEY}&units=metric`
-    )
-      .then(res => res.json())
-      .then(json => {
-        // console.log(json);
-        this.setState({
-          temperature: json.main.temp,
-          weatherCondition: json.weather[0].main,
-          isLoading: false
-        });
-      });
-  }
-
-  render() {
-    const { isLoading, weatherCondition, temperature } = this.state;
+  if (!weatherData) {
     return (
       <View style={styles.container}>
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Fetching The Weather</Text>
-          </View>
-        ) : (
-          <Weather weather={weatherCondition} temperature={temperature} />
-        )}
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Fetching The Weather</Text>
+        </View>
       </View>
     );
   }
+
+  const weatherCondition = weatherData.weather[0].main;
+  const temperature = weatherData.main.temp;
+
+  return (
+    <View style={styles.container}>
+      <Weather weather={weatherCondition} temperature={temperature} />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFDE4'
+    backgroundColor: '#FFFDE4',
   },
   loadingText: {
-    fontSize: 30
-  }
+    fontSize: 30,
+  },
 });
